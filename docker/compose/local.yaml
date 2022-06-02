@@ -1,0 +1,5 @@
+version: '3.3'
+services:
+  ria-golang:
+    environment:
+    - APP_PORT=:8420
