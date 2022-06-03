@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	cfg := config.InitializeConfig()
-	routes.InitializeRouter(cfg.Server.Port)
+	config.InitializeConfig()
+	routes.InitializeRouter(config.AppConfig.Server.Port)
 }

@@ -8,5 +8,6 @@ import (
 func InitializeRouter(server_port string) {
 	r := gin.Default()
 	r.GET("/ping", handlers.Pong)
+	r.POST("/login", handlers.Login)
 	r.Run(server_port)
 }
