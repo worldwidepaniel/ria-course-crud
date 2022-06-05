@@ -9,7 +9,7 @@ import (
 
 const dbName = "todoDB"
 
-func GetUser(userEmail string) bson.D {
+func GetUser(userEmail string) User {
 	connection := Connect()
 
 	defer Close(connection)
@@ -19,10 +19,10 @@ func GetUser(userEmail string) bson.D {
 		"email", bson.D{{"$eq", userEmail}},
 	}}
 
-	var result bson.D
+	var result User
 	err := collection.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
-		return nil
+		return User{}
 	}
 
 	return result

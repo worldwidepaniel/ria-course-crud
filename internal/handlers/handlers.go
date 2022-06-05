@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/worldwidepaniel/ria-course-crud/internal/db"
 	"github.com/worldwidepaniel/ria-course-crud/internal/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Pong(c *gin.Context) {
@@ -15,7 +16,7 @@ func Pong(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var requestBody EmailRequestBody
+	var requestBody LoginRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
@@ -25,11 +26,30 @@ func Login(c *gin.Context) {
 		return
 	}
 	user := db.GetUser(requestBody.Email)
-	if user == nil {
-		c.JSON(http.StatusOK, gin.H{})
+	if user == (db.User{}) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "no user with given email",
+		})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(requestBody.Password)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "wrong password",
+		})
+		return
+	}
+	token, err := utils.GenerateJWT(user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "error while generating token",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 
 }
 
@@ -43,7 +63,7 @@ func Register(c *gin.Context) {
 			})
 		return
 	}
-	if user := db.GetUser(requestBody.Email); len(user) != 0 {
+	if user := db.GetUser(requestBody.Email); user != (db.User{}) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "user with this email already exists",
 		})
