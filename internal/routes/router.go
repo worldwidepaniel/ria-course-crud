@@ -9,5 +9,6 @@ func InitializeRouter(server_port string) {
 	r := gin.Default()
 	r.GET("/ping", handlers.Pong)
 	r.POST("/login", handlers.Login)
+	r.POST("/register", handlers.Register)
 	r.Run(server_port)
 }

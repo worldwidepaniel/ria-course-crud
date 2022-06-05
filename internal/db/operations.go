@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -25,4 +26,17 @@ func GetUser(userEmail string) bson.D {
 	}
 
 	return result
+}
+
+func CreateUser(newUser User) error {
+	connection := Connect()
+
+	defer Close(connection)
+
+	collection := connection.Database(dbName).Collection("users")
+	_, err := collection.InsertOne(context.TODO(), newUser)
+	if err != nil {
+		return fmt.Errorf("%e", err)
+	}
+	return nil
 }
