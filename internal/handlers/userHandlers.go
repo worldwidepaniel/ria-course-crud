@@ -9,12 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Pong(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "pong",
-	})
-}
-
 func Login(c *gin.Context) {
 	var requestBody LoginRequestBody
 	if err := c.BindJSON(&requestBody); err != nil {
@@ -28,14 +22,14 @@ func Login(c *gin.Context) {
 	user := db.GetUser(requestBody.Email)
 	if user == (db.User{}) {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "no user with given email",
+			"error": "wrong email or password",
 		})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(requestBody.Password)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "wrong password",
+			"error": "wrong email or password",
 		})
 		return
 	}

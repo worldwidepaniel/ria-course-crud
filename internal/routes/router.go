@@ -14,7 +14,10 @@ func InitializeRouter(server_port string) {
 	v1 := r.Group("/v1")
 	v1.Use(middleware.IsAuthenticated())
 	{
-		v1.GET("/ping", handlers.Pong)
+		v1.PATCH("/note/:note_id", handlers.ModifyNote)
+		v1.DELETE("/note/:note_id", handlers.DeleteNote)
+		v1.POST("/note/", handlers.AddNote)
+		v1.GET("/note/:note_id", handlers.GetNote)
 	}
 	r.Run(server_port)
 }

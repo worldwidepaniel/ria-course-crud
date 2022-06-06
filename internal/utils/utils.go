@@ -43,3 +43,20 @@ func IsJWTValid(jwtString string) bool {
 		return false
 	}
 }
+
+func UserEmailFromJWT(jwtString string) string {
+	token, err := jwt.Parse(jwtString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return "false"
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return fmt.Sprintf("%v", claims["user"])
+	} else {
+		return ""
+	}
+}
