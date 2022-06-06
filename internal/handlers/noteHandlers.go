@@ -38,6 +38,24 @@ func AddNote(c *gin.Context) {
 }
 
 func DeleteNote(c *gin.Context) {
+	noteID := c.Param("note_id")
+	objectID, err := primitive.ObjectIDFromHex(noteID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid note id",
+		})
+		return
+	}
+	err = db.DeleteNote(objectID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "error while deleting note",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": fmt.Sprintf("deleted note of id: %s", objectID),
+	})
 
 }
 
