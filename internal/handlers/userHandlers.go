@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/worldwidepaniel/ria-course-crud/internal/db"
 	"github.com/worldwidepaniel/ria-course-crud/internal/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -72,6 +73,7 @@ func Register(c *gin.Context) {
 	}
 
 	newUser := db.User{
+		UID:          primitive.NewObjectID(),
 		Email:        requestBody.Email,
 		Name:         requestBody.Name,
 		PasswordHash: hash,

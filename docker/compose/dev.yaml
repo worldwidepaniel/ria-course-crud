@@ -12,7 +12,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - 27010:27017
-
   ria-express:
     image: mongo-express
     restart: always
@@ -22,3 +21,9 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@ria-mongo:27017/
+  ria-meilisearch:
+    image: getmeili/meilisearch
+    ports:
+      - 7700:7700
+    environment:
+      - MEILI_MASTER_KEY=testowankoooo

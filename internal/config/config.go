@@ -14,7 +14,7 @@ type Config struct {
 		Address  string `envconfig:"MONGO_URL"`
 	}
 	SearchEngine struct {
-		Address string
+		Key string `envconfig:"MEILI_KEY"`
 	}
 }
 

@@ -46,7 +46,9 @@ func DeleteNote(c *gin.Context) {
 		})
 		return
 	}
-	err = db.DeleteNote(objectID)
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	err = db.DeleteNote(objectID, user.UID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "error while deleting note",
@@ -60,9 +62,61 @@ func DeleteNote(c *gin.Context) {
 }
 
 func ModifyNote(c *gin.Context) {
+	noteID := c.Param("note_id")
+	objectID, err := primitive.ObjectIDFromHex(noteID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid note id",
+		})
+		return
+	}
+	var requestBody db.Note
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": err,
+			})
+		return
+	}
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	requestBody.Note_ID = objectID
+	requestBody.UID = user.UID
+	if err = db.ModifyNote(requestBody); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": "modified note",
+	})
+}
+
+func GetUserNotes(c *gin.Context) {
+	notesLimit := c.DefaultQuery("limit", "10")
+	notesOffset := c.DefaultQuery("offset", "0")
+
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	result, err := db.GetUserNotes(notesLimit, notesOffset, user.UID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 
 }
 
-func GetNote(c *gin.Context) {
+func SearchNotes(c *gin.Context) {
+	phrase := c.Param("phrase")
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	hits := db.SearchPhrase(phrase, user.UID)
 
+	c.JSON(http.StatusOK, hits)
 }

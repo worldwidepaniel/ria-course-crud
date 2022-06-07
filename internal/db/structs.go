@@ -10,9 +10,9 @@ type User struct {
 }
 
 type Note struct {
-	Note_ID       primitive.ObjectID `json:",omitempty" bson:"_id,"`
-	UID           primitive.ObjectID `json:",omitempty" bson:"uid"`
+	Note_ID       primitive.ObjectID `json:",omitempty" bson:"_id, omitempty"`
+	UID           primitive.ObjectID `json:",omitempty" bson:"uid, omitempty"`
 	Categories    []string           `json:"categories" bson:"categories" binding:"required"`
-	Creation_date int                `json:"creation_date" bson:"creation_date" binding:"required"`
+	Creation_date int                `json:"creation_date" bson:"creation_date"`
 	Content       string             `json:"content" bson:"content" binding:"required"`
 }
