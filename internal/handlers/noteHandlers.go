@@ -111,3 +111,12 @@ func GetUserNotes(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 
 }
+
+func SearchNotes(c *gin.Context) {
+	phrase := c.Param("phrase")
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	hits := db.SearchPhrase(phrase, user.UID)
+
+	c.JSON(http.StatusOK, hits)
+}

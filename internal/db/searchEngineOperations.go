@@ -5,6 +5,7 @@ import (
 
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/worldwidepaniel/ria-course-crud/internal/config"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func connectToSearchEngine() *meilisearch.Client {
@@ -26,4 +27,16 @@ func AddToSearchEngine(Notes []Note) error {
 	client.Index("notes").UpdateSettings(&settings)
 	return nil
 
+}
+
+func SearchPhrase(phrase string, uid primitive.ObjectID) []interface{} {
+	client := connectToSearchEngine()
+	searchRes, err := client.Index("notes").Search(phrase, &meilisearch.SearchRequest{
+		Filter: fmt.Sprintf("UID = %s", uid.Hex()),
+	})
+	fmt.Println(err)
+	if err != nil {
+		return nil
+	}
+	return searchRes.Hits
 }

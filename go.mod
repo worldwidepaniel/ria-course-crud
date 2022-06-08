@@ -3,7 +3,6 @@ module github.com/worldwidepaniel/ria-course-crud
 go 1.18
 
 require (
-	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.8.0
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/kelseyhightower/envconfig v1.4.0

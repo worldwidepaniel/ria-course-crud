@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/worldwidepaniel/ria-course-crud/internal/handlers"
 	"github.com/worldwidepaniel/ria-course-crud/internal/middleware"
@@ -9,7 +8,6 @@ import (
 
 func InitializeRouter(server_port string) {
 	r := gin.Default()
-	r.Use(cors.Default())
 	r.POST("/login", handlers.Login)
 	r.POST("/register", handlers.Register)
 
@@ -20,6 +18,7 @@ func InitializeRouter(server_port string) {
 		v1.DELETE("/note/:note_id", handlers.DeleteNote)
 		v1.POST("/note", handlers.AddNote)
 		v1.GET("/notes", handlers.GetUserNotes)
+		v1.GET("/search/:phrase", handlers.SearchNotes)
 	}
 	r.Run(server_port)
 }
