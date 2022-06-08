@@ -32,7 +32,8 @@ func AddToSearchEngine(Notes []Note) error {
 func SearchPhrase(phrase string, uid primitive.ObjectID) []interface{} {
 	client := connectToSearchEngine()
 	searchRes, err := client.Index("notes").Search(phrase, &meilisearch.SearchRequest{
-		Filter: fmt.Sprintf("UID = %s", uid.Hex()),
+		Filter:                fmt.Sprintf("UID = %s", uid.Hex()),
+		AttributesToHighlight: []string{"*"},
 	})
 	fmt.Println(err)
 	if err != nil {

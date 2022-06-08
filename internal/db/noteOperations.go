@@ -45,6 +45,8 @@ func DeleteNote(noteID primitive.ObjectID, uid primitive.ObjectID) error {
 	if err != nil {
 		return err
 	}
+	notes, _ := GetNotes()
+	AddToSearchEngine(notes)
 	return nil
 }
 
@@ -68,6 +70,8 @@ func ModifyNote(noteData Note) error {
 	if err != nil {
 		return fmt.Errorf("error while modifying note")
 	}
+	notes, _ := GetNotes()
+	AddToSearchEngine(notes)
 	return nil
 }
 
