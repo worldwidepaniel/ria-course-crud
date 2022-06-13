@@ -29,6 +29,8 @@ func InitializeRouter(server_port string) {
 	{
 		v1.PATCH("/note/:note_id", handlers.ModifyNote)
 		v1.DELETE("/note/:note_id", handlers.DeleteNote)
+		v1.GET("/note/:note_id", handlers.GetUserNote)
+		v1.GET("/countNotes", handlers.CountUserNotes)
 		v1.POST("/note", handlers.AddNote)
 		v1.GET("/notes", handlers.GetUserNotes)
 		v1.GET("/search/:phrase", handlers.SearchNotes)

@@ -75,6 +75,38 @@ func ModifyNote(noteData Note) error {
 	return nil
 }
 
+func CountNotes(userID primitive.ObjectID) (int64, error) {
+	connection := Connect()
+	defer Close(connection)
+
+	collection := connection.Database(dbName).Collection("notes")
+	filter := bson.D{{"uid", userID}}
+	count, err := collection.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func GetNote(userID primitive.ObjectID, noteID primitive.ObjectID) (Note, error) {
+	connection := Connect()
+
+	defer Close(connection)
+	collection := connection.Database(dbName).Collection("notes")
+	filter := bson.D{
+		{"$and",
+			bson.A{
+				bson.D{{"_id", noteID}},
+				bson.D{{"uid", userID}},
+			}},
+	}
+	var results Note
+	if err := collection.FindOne(context.TODO(), filter).Decode(&results); err != nil {
+		return Note{}, fmt.Errorf("error getting from cursor")
+	}
+	return results, nil
+}
+
 func GetUserNotes(limit string, offset string, userID primitive.ObjectID) ([]Note, error) {
 	connection := Connect()
 

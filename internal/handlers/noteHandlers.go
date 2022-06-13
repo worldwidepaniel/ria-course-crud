@@ -95,7 +95,7 @@ func ModifyNote(c *gin.Context) {
 }
 
 func GetUserNotes(c *gin.Context) {
-	notesLimit := c.DefaultQuery("limit", "10")
+	notesLimit := c.DefaultQuery("limit", "4")
 	notesOffset := c.DefaultQuery("offset", "0")
 
 	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
@@ -110,6 +110,46 @@ func GetUserNotes(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 
+}
+
+func GetUserNote(c *gin.Context) {
+	noteID := c.Param("note_id")
+	objectID, err := primitive.ObjectIDFromHex(noteID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "invalid note id",
+		})
+		return
+	}
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+
+	result, err := db.GetNote(user.UID, objectID)
+	fmt.Println(err)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+
+}
+
+func CountUserNotes(c *gin.Context) {
+	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
+	user := db.GetUser(email)
+	documentCount, err := db.CountNotes(user.UID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"document-count": documentCount,
+	})
 }
 
 func SearchNotes(c *gin.Context) {
