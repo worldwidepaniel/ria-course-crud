@@ -15,6 +15,14 @@ func connectToSearchEngine() *meilisearch.Client {
 	})
 }
 
+func DeleteFromSearchEngine(noteID string) {
+	client := connectToSearchEngine()
+	_, err := client.Index("notes").DeleteDocument(noteID)
+	if err != nil {
+		fmt.Errorf("error while adding documents to search engine")
+	}
+}
+
 func AddToSearchEngine(Notes []Note) error {
 	client := connectToSearchEngine()
 	_, err := client.Index("notes").AddDocuments(Notes)
@@ -34,6 +42,8 @@ func SearchPhrase(phrase string, uid primitive.ObjectID) []interface{} {
 	searchRes, err := client.Index("notes").Search(phrase, &meilisearch.SearchRequest{
 		Filter:                fmt.Sprintf("UID = %s", uid.Hex()),
 		AttributesToHighlight: []string{"*"},
+		HighlightPreTag:       "<b>",
+		HighlightPostTag:      "</b>",
 	})
 	fmt.Println(err)
 	if err != nil {

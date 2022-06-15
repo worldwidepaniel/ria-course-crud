@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,6 +16,7 @@ func AddNote(noteData Note) string {
 
 	defer Close(connection)
 
+	noteData.Creation_date = int(time.Now().Unix())
 	collection := connection.Database(dbName).Collection("notes")
 	result, err := collection.InsertOne(context.TODO(), noteData)
 	if err != nil {
@@ -45,8 +47,7 @@ func DeleteNote(noteID primitive.ObjectID, uid primitive.ObjectID) error {
 	if err != nil {
 		return err
 	}
-	notes, _ := GetNotes()
-	AddToSearchEngine(notes)
+	DeleteFromSearchEngine(noteID.Hex())
 	return nil
 }
 
@@ -65,7 +66,8 @@ func ModifyNote(noteData Note) error {
 			}},
 	}
 
-	update := bson.D{{"$set", bson.D{{"content", noteData.Content}}}}
+	update := bson.D{{"$set", bson.D{{"content", noteData.Content},
+		{"categories", noteData.Categories}}}}
 	_, err := collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return fmt.Errorf("error while modifying note")
@@ -107,7 +109,7 @@ func GetNote(userID primitive.ObjectID, noteID primitive.ObjectID) (Note, error)
 	return results, nil
 }
 
-func GetUserNotes(limit string, offset string, userID primitive.ObjectID) ([]Note, error) {
+func GetUserNotes(offset string, userID primitive.ObjectID) ([]Note, error) {
 	connection := Connect()
 
 	defer Close(connection)
@@ -120,7 +122,7 @@ func GetUserNotes(limit string, offset string, userID primitive.ObjectID) ([]Not
 	if err != nil {
 		return nil, fmt.Errorf("error while parsing offset")
 	}
-	opts := options.Find().SetSkip(parsedOffset).SetLimit(50).SetProjection(projection)
+	opts := options.Find().SetSkip(parsedOffset).SetLimit(4).SetProjection(projection)
 
 	cursor, err := collection.Find(context.TODO(), filter, opts)
 	if err != nil {

@@ -95,12 +95,11 @@ func ModifyNote(c *gin.Context) {
 }
 
 func GetUserNotes(c *gin.Context) {
-	notesLimit := c.DefaultQuery("limit", "4")
 	notesOffset := c.DefaultQuery("offset", "0")
 
 	email := utils.UserEmailFromJWT(c.Request.Header["Token"][0])
 	user := db.GetUser(email)
-	result, err := db.GetUserNotes(notesLimit, notesOffset, user.UID)
+	result, err := db.GetUserNotes(notesOffset, user.UID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": err,
